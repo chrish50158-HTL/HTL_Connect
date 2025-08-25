@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTL Connect</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f4f4; }
+    header { background: #003366; color: #fff; padding: 1rem; text-align: center; }
+    .screen { display: none; padding: 1rem; }
+    .active { display: block; }
+    .menu { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
+    .tile { background: #fff; border-radius: 12px; padding: 2rem; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.2); cursor: pointer; }
+    button, input { padding: 0.5rem; margin: 0.5rem 0; width: 100%; border-radius: 6px; border: 1px solid #ccc; }
+    .backup { margin-top: 2rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>HTL Connect</h1>
+    <p>Transportation Management System</p>
+  </header>
+
+  <!-- Landing -->
+  <section id="screenLanding" class="screen active">
+    <h2>Welcome</h2>
+    <div class="menu">
+      <div class="tile" onclick="go('screenTruckingLogin')">Hill Trucking & Livestock</div>
+      <div class="tile" onclick="go('screenBrokerLogin')">HTL Freight Brokers</div>
+    </div>
+  </section>
+
+  <!-- Trucking Login -->
+  <section id="screenTruckingLogin" class="screen">
+    <h2>Trucking Login</h2>
+    <form onsubmit="event.preventDefault(); go('screenTruckingDashboard');">
+      <input type="email" placeholder="Email" required>
+      <input type="password" placeholder="Password" required>
+      <button type="submit">Login</button>
+    </form>
+  </section>
+
+  <!-- Brokerage Login -->
+  <section id="screenBrokerLogin" class="screen">
+    <h2>Brokerage Login</h2>
+    <div class="menu">
+      <div class="tile" onclick="go('screenShipperLogin')">Shipper</div>
+      <div class="tile" onclick="go('screenCarrierLogin')">Carrier</div>
+      <div class="tile" onclick="go('screenBrokerStaffLogin')">Broker Staff</div>
+    </div>
+  </section>
+
+  <!-- Shipper Login -->
+  <section id="screenShipperLogin" class="screen">
+    <h2>Shipper Login</h2>
+    <form onsubmit="event.preventDefault(); go('screenBrokerOps');">
+      <input type="email" placeholder="Email" required>
+      <input type="password" placeholder="Password" required>
+      <button type="submit">Login</button>
+    </form>
+  </section>
+
+  <!-- Carrier Login -->
+  <section id="screenCarrierLogin" class="screen">
+    <h2>Carrier Login</h2>
+    <form onsubmit="event.preventDefault(); go('screenBrokerOps');">
+      <input type="email" placeholder="Email" required>
+      <input type="password" placeholder="Password" required>
+      <button type="submit">Login</button>
+    </form>
+  </section>
+
+  <!-- Broker Staff Login -->
+  <section id="screenBrokerStaffLogin" class="screen">
+    <h2>Broker Staff Login</h2>
+    <form onsubmit="event.preventDefault(); go('screenBrokerStaff');">
+      <input type="email" placeholder="Email" required>
+      <input type="password" placeholder="Password" required>
+      <button type="submit">Login</button>
+    </form>
+  </section>
+
+  <!-- Trucking Dashboard -->
+  <section id="screenTruckingDashboard" class="screen">
+    <h2>Trucking Dashboard</h2>
+    <div class="menu">
+      <div class="tile" onclick="go('dispatch')">Dispatch</div>
+      <div class="tile" onclick="go('drivers')">Drivers</div>
+      <div class="tile" onclick="go('loads')">Loads</div>
+      <div class="tile" onclick="go('compliance')">Compliance</div>
+      <div class="tile" onclick="go('billing')">Billing</div>
+      <div class="tile" onclick="go('docs')">Documents</div>
+    </div>
+  </section>
+
+  <!-- Broker Ops -->
+  <section id="screenBrokerOps" class="screen">
+    <h2>Broker Operations</h2>
+    <div class="menu">
+      <div class="tile" onclick="go('brokerLoads')">Loads</div>
+      <div class="tile" onclick="go('equipment')">Equipment</div>
+      <div class="tile" onclick="go('checkCalls')">Check Calls</div>
+      <div class="tile" onclick="go('tracking')">Tracking</div>
+      <div class="tile" onclick="go('brokerDocs')">Documents</div>
+    </div>
+  </section>
+
+  <!-- Broker Staff -->
+  <section id="screenBrokerStaff" class="screen">
+    <h2>Broker Staff Dashboard</h2>
+    <div class="menu">
+      <div class="tile" onclick="go('brokerMgmt')">Carrier Onboarding</div>
+      <div class="tile" onclick="go('brokerDispatch')">Dispatch</div>
+      <div class="tile" onclick="go('brokerFinance')">Finance</div>
+    </div>
+  </section>
+
+  <!-- Backup -->
+  <section id="screenBackup" class="screen">
+    <h2>Backup & Restore</h2>
+    <button onclick="backupData()">Download Backup</button>
+    <input type="file" onchange="restoreData(event)">
+  </section>
+
+  <script>
+    function go(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      const el = document.getElementById(id);
+      if(el) el.classList.add('active');
+      else alert('Screen not found: ' + id);
+    }
+
+    function backupData() {
+      const data = localStorage;
+      const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'htlconnect-backup.json';
+      a.click();
+    }
+
+    function restoreData(event) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.onload = e => {
+        const data = JSON.parse(e.target.result);
+        for(const key in data) {
+          localStorage.setItem(key, data[key]);
+        }
+        alert('Data restored! Refresh the page to see updates.');
+      };
+      reader.readAsText(file);
+    }
+  </script>
+</body>
+</html>
